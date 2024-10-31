@@ -1,6 +1,6 @@
-import {SafeAreaView, StyleSheet, Text} from 'react-native'
-import React, {useEffect} from 'react'
-import {MD3Theme, useTheme} from 'react-native-paper'
+import {SafeAreaView, StyleSheet} from 'react-native'
+import React, {useState} from 'react'
+import {Button, MD3Theme, Searchbar, useTheme} from 'react-native-paper'
 import {rem} from '@/constants/remUtils'
 import axios from 'axios'
 
@@ -11,7 +11,6 @@ const getAccessToken = async () => {
       Authorization: 'Basic ' + btoa('9650f03f4d264da2b34a6444770e271a:0645010a3e2a46b291bd99e0ddd6d57e')
     }
   })
-  console.log('response token: ', response.data.access_token)
   return response.data.access_token
 }
 
@@ -19,13 +18,32 @@ const Home = () => {
   const theme = useTheme()
   const styles = createStyles(theme)
 
-  useEffect(() => {
-    getAccessToken()
-  }, [])
+  const [query, setQuery] = useState('')
+  const [artists, setArtists] = useState([])
+
+  const handleSearch = async () => {
+    const token = await getAccessToken()
+    try {
+      const response = await axios.get(`https://api.spotify.com/v1/search`, {
+        headers: {Authorization: `Bearer ${token}`},
+        params: {q: query, type: 'artist'}
+      })
+      setArtists(response.data.artists.items)
+      console.log('ARTISTS: ', artists)
+    } catch (error) {
+      console.error('Error fetching artist data:', error)
+    }
+  }
+
+  const handleClearSearch = () => {
+    setQuery('')
+    setArtists([])
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Home Screen</Text>
+      <Searchbar placeholder='Search for an artist..' onChangeText={setQuery} onClearIconPress={handleClearSearch} value={query} />
+      <Button onPress={handleSearch}>Submit</Button>
     </SafeAreaView>
   )
 }
