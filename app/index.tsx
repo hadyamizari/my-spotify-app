@@ -1,6 +1,6 @@
-import {StyleSheet, View, SafeAreaView} from 'react-native'
+import {StyleSheet, SafeAreaView} from 'react-native'
 import React from 'react'
-import {Button, MD3Theme, Text, useTheme} from 'react-native-paper'
+import {Button, MD3Theme, useTheme} from 'react-native-paper'
 import {rem} from '@/constants/remUtils'
 import {User} from 'lucide-react-native'
 import {router} from 'expo-router'
