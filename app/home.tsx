@@ -5,12 +5,27 @@ import {rem} from '@/constants/remUtils'
 import axios from 'axios'
 import {router} from 'expo-router'
 
+interface Artist {
+  id: string
+  name: string
+  external_urls: {
+    spotify: string
+  }
+}
+
+interface ArtistsResponse {
+  artists: {
+    items: Artist[]
+  }
+}
+
 const Home = () => {
   const theme = useTheme()
   const styles = createStyles(theme)
 
   const [query, setQuery] = useState('')
   const [artists, setArtists] = useState<Artist[]>([])
+  const [url, setUrl] = useState()
 
   useEffect(() => {
     getAccessToken()
@@ -34,6 +49,9 @@ const Home = () => {
         params: {q: query, type: 'artist'}
       })
       setArtists(response.data.artists.items)
+
+      const spotifyLinks = response.data.artists.items.map((item) => item.external_urls)
+      console.log('hii: ', spotifyLinks)
     } catch (error) {
       console.error('Error fetching artist data:', error)
     }
@@ -44,24 +62,24 @@ const Home = () => {
     setArtists([])
   }
 
-  interface Artist {
-    id: string
-    name: string
-  }
-
-  interface ArtistsResponse {
-    artists: {
-      items: Artist[]
-    }
-  }
-
   return (
     <SafeAreaView style={styles.container}>
       <Searchbar placeholder='Search for an artist..' onChangeText={setQuery} onClearIconPress={handleClearSearch} value={query} />
       <Button onPress={handleSearch}>Submit</Button>
       <ScrollView>
         {artists.map((artist) => (
-          <TouchableOpacity onPress={() => {}} key={artist.id}>
+          <TouchableOpacity
+            onPress={() => {
+              router.push({
+                pathname: '/artist-id',
+                params: {
+                  id: artist.id,
+                  url: `https://open.spotify.com/artist/${artist.id}`
+                }
+              })
+            }}
+            key={artist.id}
+          >
             <Card mode='contained' style={styles.card} key={artist.id}>
               {/* <Avatar.Image size={24} source={require('../assets/avatar.png')} /> */}
               <Text variant='labelMedium' key={artist.id}>
