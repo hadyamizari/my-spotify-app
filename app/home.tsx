@@ -1,13 +1,16 @@
-import {SafeAreaView, ScrollView, StyleSheet, TouchableOpacity} from 'react-native'
+import {SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native'
 import React, {useEffect, useState} from 'react'
-import {Button, Card, MD3Theme, Searchbar, useTheme, Text} from 'react-native-paper'
+import {Button, MD3Theme, Searchbar, useTheme, Text, Avatar, Surface} from 'react-native-paper'
 import {rem} from '@/constants/remUtils'
 import axios from 'axios'
 import {router} from 'expo-router'
+import {Star} from 'lucide-react-native'
 
 interface Artist {
   id: string
   name: string
+  followers: number
+  popularity: number
   external_urls: {
     spotify: string
   }
@@ -80,12 +83,32 @@ const Home = () => {
             }}
             key={artist.id}
           >
-            <Card mode='contained' style={styles.card} key={artist.id}>
+            <Surface style={styles.card} key={artist.id}>
               {/* <Avatar.Image size={24} source={require('../assets/avatar.png')} /> */}
-              <Text variant='labelMedium' key={artist.id}>
-                {artist.name}
-              </Text>
-            </Card>
+
+              <View style={styles.cardLeft}>
+                <Avatar.Text size={40} label='JD' />
+
+                <View style={styles.cardLeftTextContainer}>
+                  <Text variant='bodyLarge' style={styles.name} key={artist.id}>
+                    John Doe
+                    {artist.name}
+                  </Text>
+                  <Text variant='labelSmall' style={styles.followers}>
+                    1,500 Followers
+                    {artist.followers}
+                  </Text>
+                </View>
+              </View>
+              <View style={styles.cardRight}>
+                {artist.popularity}
+                <Star size={17} strokeWidth={2} fill={'rgb(241,210,66)'} color={'rgb(241,210,66)'} />
+                <Star size={17} strokeWidth={2} fill={'rgb(241,210,66)'} color={'rgb(241,210,66)'} />
+                <Star size={17} strokeWidth={2} fill={'rgb(241,210,66)'} color={'rgb(241,210,66)'} />
+                <Star size={17} strokeWidth={0.5} color={theme.colors.onSurface} />
+                <Star size={17} strokeWidth={0.5} color={theme.colors.onSurface} />
+              </View>
+            </Surface>
           </TouchableOpacity>
         ))}
       </ScrollView>
@@ -98,5 +121,10 @@ export default Home
 const createStyles = (theme: MD3Theme) =>
   StyleSheet.create({
     container: {flex: 1, margin: rem(20)},
-    card: {padding: rem(15), marginVertical: rem(5), flexDirection: 'row', justifyContent: 'space-between'}
+    card: {backgroundColor: theme.colors.surface, padding: rem(10), margin: rem(5), borderRadius: 15, flexDirection: 'row', justifyContent: 'space-between'},
+    cardLeft: {flexDirection: 'row', gap: rem(10), alignItems: 'center'},
+    cardLeftTextContainer: {},
+    name: {fontWeight: '400'},
+    followers: {color: theme.colors.outline, fontWeight: '300'},
+    cardRight: {flexDirection: 'row', gap: rem(2), alignItems: 'center'}
   })
