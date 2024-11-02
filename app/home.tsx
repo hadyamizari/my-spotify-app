@@ -1,4 +1,4 @@
-import {SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View} from 'react-native'
+import {FlatList, SafeAreaView, StyleSheet, TouchableOpacity, View} from 'react-native'
 import React, {useEffect, useState} from 'react'
 import {Button, MD3Theme, Searchbar, useTheme, Text, Avatar, Surface} from 'react-native-paper'
 import {rem} from '@/constants/remUtils'
@@ -9,8 +9,16 @@ import {Star} from 'lucide-react-native'
 interface Artist {
   id: string
   name: string
-  followers: number
+  followers: {
+    total: number
+  }
   popularity: number
+  genres: string[]
+  images: {
+    url: string
+    height: number
+    width: number
+  }[]
   external_urls: {
     spotify: string
   }
@@ -22,13 +30,16 @@ interface ArtistsResponse {
   }
 }
 
+interface StarRatingProps {
+  popularity: number
+}
+
 const Home = () => {
   const theme = useTheme()
   const styles = createStyles(theme)
 
   const [query, setQuery] = useState('')
   const [artists, setArtists] = useState<Artist[]>([])
-  const [url, setUrl] = useState()
 
   useEffect(() => {
     getAccessToken()
@@ -46,15 +57,13 @@ const Home = () => {
 
   const handleSearch = async () => {
     const token = await getAccessToken()
+
     try {
       const response = await axios.get<ArtistsResponse>(`https://api.spotify.com/v1/search`, {
         headers: {Authorization: `Bearer ${token}`},
         params: {q: query, type: 'artist'}
       })
       setArtists(response.data.artists.items)
-
-      const spotifyLinks = response.data.artists.items.map((item) => item.external_urls)
-      console.log('hii: ', spotifyLinks)
     } catch (error) {
       console.error('Error fetching artist data:', error)
     }
@@ -65,53 +74,62 @@ const Home = () => {
     setArtists([])
   }
 
+  const StarRating: React.FC<StarRatingProps> = ({popularity}) => {
+    const MAX_STARS = 5
+    const filledStars = Math.ceil(popularity / 20)
+    const unfilledStars = MAX_STARS - filledStars
+
+    return (
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        {/* Render filled stars */}
+        {Array.from({length: filledStars}).map((_, index) => (
+          <Star key={`filled-${index}`} size={17} strokeWidth={2} fill={'rgb(241,210,66)'} color={'rgb(241,210,66)'} />
+        ))}
+        {/* Render unfilled stars */}
+        {Array.from({length: unfilledStars}).map((_, index) => (
+          <Star key={`unfilled-${index}`} size={17} strokeWidth={0.5} color={theme.colors.onSurface} />
+        ))}
+      </View>
+    )
+  }
+
   return (
     <SafeAreaView style={styles.container}>
       <Searchbar placeholder='Search for an artist..' onChangeText={setQuery} onClearIconPress={handleClearSearch} value={query} />
       <Button onPress={handleSearch}>Submit</Button>
-      <ScrollView>
-        {artists.map((artist) => (
+
+      <FlatList
+        data={artists}
+        keyExtractor={(artist: Artist) => artist.id}
+        renderItem={({item}) => (
           <TouchableOpacity
             onPress={() => {
               router.push({
                 pathname: '/artist-id',
-                params: {
-                  id: artist.id,
-                  url: `https://open.spotify.com/artist/${artist.id}`
-                }
+                params: {id: item.id}
               })
             }}
-            key={artist.id}
           >
-            <Surface style={styles.card} key={artist.id}>
-              {/* <Avatar.Image size={24} source={require('../assets/avatar.png')} /> */}
-
+            <Surface mode='flat' style={styles.card}>
               <View style={styles.cardLeft}>
-                <Avatar.Text size={40} label='JD' />
+                <Avatar.Image size={60} source={{uri: item.images[0]?.url}} />
 
                 <View style={styles.cardLeftTextContainer}>
-                  <Text variant='bodyLarge' style={styles.name} key={artist.id}>
-                    John Doe
-                    {artist.name}
+                  <Text variant='titleMedium' style={styles.name}>
+                    {item.name}
                   </Text>
                   <Text variant='labelSmall' style={styles.followers}>
-                    1,500 Followers
-                    {artist.followers}
+                    {new Intl.NumberFormat().format(item.followers.total)} Followers
                   </Text>
                 </View>
               </View>
               <View style={styles.cardRight}>
-                {artist.popularity}
-                <Star size={17} strokeWidth={2} fill={'rgb(241,210,66)'} color={'rgb(241,210,66)'} />
-                <Star size={17} strokeWidth={2} fill={'rgb(241,210,66)'} color={'rgb(241,210,66)'} />
-                <Star size={17} strokeWidth={2} fill={'rgb(241,210,66)'} color={'rgb(241,210,66)'} />
-                <Star size={17} strokeWidth={0.5} color={theme.colors.onSurface} />
-                <Star size={17} strokeWidth={0.5} color={theme.colors.onSurface} />
+                <StarRating popularity={item.popularity} />
               </View>
             </Surface>
           </TouchableOpacity>
-        ))}
-      </ScrollView>
+        )}
+      />
     </SafeAreaView>
   )
 }
@@ -120,11 +138,11 @@ export default Home
 
 const createStyles = (theme: MD3Theme) =>
   StyleSheet.create({
-    container: {flex: 1, margin: rem(20)},
-    card: {backgroundColor: theme.colors.surface, padding: rem(10), margin: rem(5), borderRadius: 15, flexDirection: 'row', justifyContent: 'space-between'},
-    cardLeft: {flexDirection: 'row', gap: rem(10), alignItems: 'center'},
-    cardLeftTextContainer: {},
-    name: {fontWeight: '400'},
+    container: {flex: 1, margin: rem(10)},
+    card: {backgroundColor: theme.colors.surface, padding: rem(10), paddingRight: rem(20), margin: rem(5), borderRadius: 15, flexDirection: 'row', justifyContent: 'space-between'},
+    cardLeft: {flexDirection: 'row', gap: rem(15), alignItems: 'center'},
+    cardLeftTextContainer: {gap: rem(5)},
+    name: {fontWeight: '300', fontSize: 18},
     followers: {color: theme.colors.outline, fontWeight: '300'},
     cardRight: {flexDirection: 'row', gap: rem(2), alignItems: 'center'}
   })
