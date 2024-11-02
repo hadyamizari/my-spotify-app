@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react'
 import {Button, MD3Theme, Searchbar, useTheme, Text, Avatar, Surface} from 'react-native-paper'
 import {rem} from '@/constants/remUtils'
 import axios from 'axios'
-import {router} from 'expo-router'
+import {router, useLocalSearchParams} from 'expo-router'
 import {Star} from 'lucide-react-native'
 
 interface Artist {
@@ -37,9 +37,11 @@ interface StarRatingProps {
 const Home = () => {
   const theme = useTheme()
   const styles = createStyles(theme)
+  const {client_id, client_secret} = useLocalSearchParams()
 
   const [query, setQuery] = useState('')
   const [artists, setArtists] = useState<Artist[]>([])
+  const [token, setToken] = useState()
 
   useEffect(() => {
     getAccessToken()
@@ -49,7 +51,7 @@ const Home = () => {
     const response = await axios.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: 'Basic ' + btoa('9650f03f4d264da2b34a6444770e271a:0645010a3e2a46b291bd99e0ddd6d57e')
+        Authorization: 'Basic ' + btoa(`${client_id}:${client_secret}`)
       }
     })
     return response.data.access_token
@@ -57,6 +59,7 @@ const Home = () => {
 
   const handleSearch = async () => {
     const token = await getAccessToken()
+    setToken(token)
 
     try {
       const response = await axios.get<ArtistsResponse>(`https://api.spotify.com/v1/search`, {
@@ -106,7 +109,7 @@ const Home = () => {
             onPress={() => {
               router.push({
                 pathname: '/artist-id',
-                params: {id: item.id}
+                params: {id: item.id, token: token, artist_name: item.name}
               })
             }}
           >

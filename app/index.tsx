@@ -11,7 +11,19 @@ const Index = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Button mode='contained-tonal' onPress={() => router.push('/home')} icon={() => <User size={15} color={theme.colors.onSurface} />}>
+      <Button
+        mode='contained-tonal'
+        onPress={() =>
+          router.push({
+            pathname: '/home',
+            params: {
+              client_id: '9650f03f4d264da2b34a6444770e271a',
+              client_secret: '0645010a3e2a46b291bd99e0ddd6d57e'
+            }
+          })
+        }
+        icon={() => <User size={15} color={theme.colors.onSurface} />}
+      >
         Login
       </Button>
     </SafeAreaView>
