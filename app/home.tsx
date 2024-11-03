@@ -176,7 +176,7 @@ export default Home
 
 const createStyles = (theme: MD3Theme) =>
   StyleSheet.create({
-    container: {flex: 1, margin: rem(10)},
+    container: {flex: 1, margin: rem(10), marginTop: rem(40)},
     searchBar: {backgroundColor: theme.colors.surfaceVariant, paddingHorizontal: rem(10), marginBottom: rem(10), height: rem(40)},
     input: {alignSelf: 'center'},
     card: {backgroundColor: theme.colors.surface, padding: rem(10), paddingRight: rem(20), margin: rem(5), borderRadius: 15, flexDirection: 'row', justifyContent: 'space-between'},
