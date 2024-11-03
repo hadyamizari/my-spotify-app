@@ -92,7 +92,6 @@ function RootLayoutNav() {
             }}
           />
           <Stack.Screen name='home' options={{headerShown: false}} />
-          <Stack.Screen name='modal' options={{presentation: 'modal'}} />
           <Stack.Screen name='artist-id' options={{title: 'Artist Albums', headerBackTitleVisible: false}} />
         </Stack>
       </PaperProvider>

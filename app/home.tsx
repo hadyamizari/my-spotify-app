@@ -1,5 +1,5 @@
 import {FlatList, SafeAreaView, StyleSheet, TouchableOpacity, View} from 'react-native'
-import React, {useEffect, useState} from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import {Button, MD3Theme, Searchbar, useTheme, Text, Avatar, Surface} from 'react-native-paper'
 import {rem} from '@/constants/remUtils'
 import axios from 'axios'
@@ -34,6 +34,8 @@ interface ArtistsResponse {
 interface StarRatingProps {
   popularity: number
 }
+
+const yellow = 'rgb(241,210,66)'
 
 const Home = () => {
   const theme = useTheme()
@@ -73,6 +75,18 @@ const Home = () => {
     }
   }
 
+  // debounced search function
+  const debouncedSearch = useCallback(debounce(handleSearch, 500), [query])
+
+  // run debounced search whenever the query changes
+  useEffect(() => {
+    if (query) {
+      debouncedSearch()
+    } else {
+      setArtists([]) // Clear artists list when query is empty
+    }
+  }, [query, debouncedSearch])
+
   const handleClearSearch = () => {
     setQuery('')
     setArtists([])
@@ -87,7 +101,7 @@ const Home = () => {
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         {/* Render filled stars */}
         {Array.from({length: filledStars}).map((_, index) => (
-          <Star key={`filled-${index}`} size={17} strokeWidth={2} fill={'rgb(241,210,66)'} color={'rgb(241,210,66)'} />
+          <Star key={`filled-${index}`} size={17} strokeWidth={2} fill={yellow} color={yellow} />
         ))}
         {/* Render unfilled stars */}
         {Array.from({length: unfilledStars}).map((_, index) => (
@@ -109,7 +123,6 @@ const Home = () => {
         inputStyle={styles.input}
         iconColor={theme.colors.outline}
       />
-      <Button onPress={handleSearch}>Submit</Button>
 
       <FlatList
         data={artists}
@@ -152,7 +165,7 @@ export default Home
 const createStyles = (theme: MD3Theme) =>
   StyleSheet.create({
     container: {flex: 1, margin: rem(10)},
-    searchBar: {backgroundColor: theme.colors.surfaceVariant, paddingHorizontal: rem(10), height: rem(40)},
+    searchBar: {backgroundColor: theme.colors.surfaceVariant, paddingHorizontal: rem(10), marginBottom: rem(10), height: rem(40)},
     input: {alignSelf: 'center'},
     card: {backgroundColor: theme.colors.surface, padding: rem(10), paddingRight: rem(20), margin: rem(5), borderRadius: 15, flexDirection: 'row', justifyContent: 'space-between'},
     cardLeft: {flexDirection: 'row', gap: rem(15), alignItems: 'center'},
