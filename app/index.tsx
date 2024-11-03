@@ -46,6 +46,6 @@ const createStyles = (theme: MD3Theme) =>
     container: {flex: 1, justifyContent: 'center', margin: rem(20)},
     buttonContainer: {justifyContent: 'center'},
     button: {padding: rem(5), backgroundColor: theme.colors.primary},
-    label: {fontWeight: '500', fontSize: 16},
+    label: {fontWeight: '600', fontSize: 18},
     spotifyLogo: {position: 'absolute', right: 20, height: rem(50), width: rem(50)}
   })

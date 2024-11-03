@@ -11,7 +11,7 @@ const LightTheme: Theme = {
     text: 'rgb(27, 27, 31)',
     border: 'rgb(117, 119, 128)',
     notifications: 'rgb(30, 215, 96)',
-    primary: 'rgb(30, 215, 96)',
+    primary: 'rgb(20, 160, 72)',
     onPrimary: 'rgb(255, 255, 255)',
     primaryContainer: 'rgba(30, 215, 96, 0.2)',
     onPrimaryContainer: 'rgb(0, 24, 72)',

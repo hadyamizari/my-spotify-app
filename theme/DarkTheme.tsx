@@ -11,7 +11,7 @@ const DarkTheme: Theme = {
     text: 'rgb(228, 226, 230)',
     border: 'rgb(143, 144, 154)',
     notifications: 'rgb(30, 87, 199)',
-    primary: 'rgb(30, 215, 96)',
+    primary: 'rgb(20, 160, 72)',
     onPrimary: 'rgb(0, 43, 116)',
     primaryContainer: 'rgba(30, 215, 96, 0.2)',
     onPrimaryContainer: 'rgba(30, 215, 96, 0.4)',
