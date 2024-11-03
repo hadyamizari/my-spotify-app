@@ -7,6 +7,7 @@ import {router, useLocalSearchParams} from 'expo-router'
 import {Star} from 'lucide-react-native'
 import {debounce} from 'lodash'
 
+// Define Artist interface for structure of artist data
 interface Artist {
   id: string
   name: string
@@ -25,31 +26,37 @@ interface Artist {
   }
 }
 
+// Define response interface for Spotify API's artists response
 interface ArtistsResponse {
   artists: {
     items: Artist[]
   }
 }
 
+// Define props for StarRating component to render popularity rating
 interface StarRatingProps {
   popularity: number
 }
 
+// Define a constant for the star color
 const yellow = 'rgb(241,210,66)'
 
+// Home screen to search for artists and display results with popularity rating
 const Home = () => {
   const theme = useTheme()
   const styles = createStyles(theme)
-  const {client_id, client_secret} = useLocalSearchParams()
+  const {client_id, client_secret} = useLocalSearchParams() // Retrieve client credentials from navigation parameters
 
   const [query, setQuery] = useState('')
   const [artists, setArtists] = useState<Artist[]>([])
   const [token, setToken] = useState()
 
+  // Retrieve Spotify access token on component mount
   useEffect(() => {
     getAccessToken()
   }, [])
 
+  // Function to fetch access token for Spotify API requests
   const getAccessToken = async () => {
     const response = await axios.post('https://accounts.spotify.com/api/token', 'grant_type=client_credentials', {
       headers: {
@@ -60,6 +67,7 @@ const Home = () => {
     return response.data.access_token
   }
 
+  // Function to handle artist search using Spotify API
   const handleSearch = async () => {
     const token = await getAccessToken()
     setToken(token)
@@ -75,10 +83,10 @@ const Home = () => {
     }
   }
 
-  // debounced search function
+  // Debounced search function to limit search frequency during typing
   const debouncedSearch = useCallback(debounce(handleSearch, 500), [query])
 
-  // run debounced search whenever the query changes
+  // Trigger debounced search when query changes
   useEffect(() => {
     if (query) {
       debouncedSearch()
@@ -87,11 +95,13 @@ const Home = () => {
     }
   }, [query, debouncedSearch])
 
+  // Function to clear search query and results
   const handleClearSearch = () => {
     setQuery('')
     setArtists([])
   }
 
+  // StarRating component to display artist popularity with stars
   const StarRating: React.FC<StarRatingProps> = ({popularity}) => {
     const MAX_STARS = 5
     const filledStars = Math.ceil(popularity / 20)
@@ -113,6 +123,7 @@ const Home = () => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Search bar for entering artist name */}
       <Searchbar
         placeholder='Search for an artist..'
         value={query}
@@ -124,6 +135,7 @@ const Home = () => {
         iconColor={theme.colors.outline}
       />
 
+      {/* FlatList to display list of artists based on search query */}
       <FlatList
         data={artists}
         keyExtractor={(artist: Artist) => artist.id}

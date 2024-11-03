@@ -4,13 +4,15 @@ import {Button, MD3Theme, useTheme} from 'react-native-paper'
 import {rem} from '@/constants/remUtils'
 import {router} from 'expo-router'
 
+// Main component that displays a login button and logo image
 const Index = () => {
-  const theme = useTheme()
-  const styles = createStyles(theme)
+  const theme = useTheme() // Retrieves the current theme from react-native-paper
+  const styles = createStyles(theme) // Generates styles based on the theme
 
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.buttonContainer}>
+        {/* Button that navigates to the Home screen with authentication parameters */}
         <Button
           style={styles.button}
           textColor={theme.colors.surface}
@@ -29,6 +31,7 @@ const Index = () => {
           Login
         </Button>
 
+        {/* Spotify logo displayed next to the login button */}
         <Image style={styles.spotifyLogo} source={require('../assets/images/logo.png')} />
       </View>
     </SafeAreaView>
@@ -37,6 +40,7 @@ const Index = () => {
 
 export default Index
 
+// Function to create styles using theme-based colors and spacing
 const createStyles = (theme: MD3Theme) =>
   StyleSheet.create({
     container: {flex: 1, justifyContent: 'center', margin: rem(20)},

@@ -25,20 +25,23 @@ const Home = () => {
   const theme = useTheme()
   const styles = createStyles(theme)
 
-  const {id, token, artist_name} = useLocalSearchParams()
+  const {id, token, artist_name} = useLocalSearchParams() // Get query parameters (artist ID, token, artist name) from route
   const [albums, setAlbums] = useState([])
 
-  const fetchAlbums = async () => {
+  // Fetch artist's albums from Spotify API using the artist ID and access token
+  const retrieveAlbums = async () => {
     const response = await axios.get(`https://api.spotify.com/v1/artists/${id}/albums`, {
       headers: {Authorization: `Bearer ${token}`}
     })
     setAlbums(response.data.items)
   }
 
+  // Fetch albums data on initial render
   useEffect(() => {
-    fetchAlbums()
+    retrieveAlbums()
   }, [])
 
+  // Format a given date string to "YYYY-MM-DD" format
   const formattedDate = (dateString: string) => {
     const date = new Date(dateString)
     const year = date.getFullYear()
@@ -54,22 +57,29 @@ const Home = () => {
           {artist_name}
         </Text>
       </View>
+
+      {/* Display albums in a list with each album as a card */}
       <FlatList
         data={albums}
         keyExtractor={(item: AlbumItem) => item.id}
         renderItem={({item}) => (
           <Surface mode='flat' style={styles.card}>
             <Image source={{uri: item.images[0]?.url}} style={styles.image} />
+
             <View style={styles.rightCard}>
               <Text variant='titleMedium' style={styles.title}>
                 {item.name}
               </Text>
+
               <Text variant='labelSmall' style={styles.dimmedText}>
                 {formattedDate(item.release_date)}
               </Text>
+
               <Text variant='labelSmall' style={styles.dimmedText}>
                 {item.total_tracks} Tracks
               </Text>
+
+              {/* Link to view the album on Spotify */}
               <TouchableOpacity style={styles.linkPressable} onPress={() => Linking.openURL(item.external_urls.spotify)}>
                 <ExternalLink color={theme.colors.primary} size={15} strokeWidth={1.6} />
                 <Text variant='labelSmall' style={styles.link}>
