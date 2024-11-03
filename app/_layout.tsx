@@ -1,12 +1,20 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-import {DarkTheme, DefaultTheme, ThemeProvider} from '@react-navigation/native'
+import {ThemeProvider} from '@react-navigation/native'
 import {useFonts} from 'expo-font'
 import {Stack} from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import {useEffect} from 'react'
 import 'react-native-reanimated'
 
-import {useColorScheme} from '@/components/useColorScheme'
+import {useStore} from '@/utils/store'
+
+import LightTheme from '@/theme/LightTheme'
+import DarkTheme from '@/theme/DarkTheme'
+import {StatusBar} from 'expo-status-bar'
+import {PaperProvider, Text} from 'react-native-paper'
+import {TouchableOpacity, View} from 'react-native'
+import {Moon, Sun} from 'lucide-react-native'
+import {rem} from '@/constants/remUtils'
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -46,16 +54,48 @@ export default function RootLayout() {
 }
 
 function RootLayoutNav() {
-  const colorScheme = useColorScheme()
+  const store = useStore()
+
+  const activeTheme = store.isDark ? DarkTheme : LightTheme
+  const toggleTheme = () => store.switchIsDark(!store.isDark)
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name='index' options={{title: '', headerShown: false}} />
-        <Stack.Screen name='home' options={{headerShown: false}} />
-        <Stack.Screen name='modal' options={{presentation: 'modal'}} />
-        <Stack.Screen name='artist-id' options={{title: 'Artist Albums', headerBackTitleVisible: false}} />
-      </Stack>
+    <ThemeProvider value={store.isDark ? DarkTheme : LightTheme}>
+      <StatusBar style={store.isDark ? 'light' : 'dark'} />
+      <PaperProvider theme={store.isDark ? DarkTheme : LightTheme}>
+        <Stack>
+          <Stack.Screen
+            name='index'
+            options={{
+              title: '',
+              headerStyle: {backgroundColor: activeTheme.colors.background},
+              headerBackVisible: false,
+              gestureEnabled: false,
+              headerBackTitleStyle: false,
+              headerRight: () => (
+                <View style={{flexDirection: 'row'}}>
+                  <TouchableOpacity style={{backgroundColor: activeTheme.colors.surface, padding: rem(8), paddingHorizontal: rem(15), borderRadius: 15}} onPress={toggleTheme}>
+                    {activeTheme === LightTheme ? (
+                      <View style={{flexDirection: 'row', gap: rem(10), alignItems: 'center'}}>
+                        <Moon size={20} color={activeTheme.colors.primary} />
+                        <Text style={{color: activeTheme.colors.primary}}>Mode</Text>
+                      </View>
+                    ) : (
+                      <View style={{flexDirection: 'row', gap: rem(10), alignItems: 'center'}}>
+                        <Sun size={20} color={activeTheme.colors.primary} />
+                        <Text style={{color: activeTheme.colors.primary}}>Mode</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              )
+            }}
+          />
+          <Stack.Screen name='home' options={{headerShown: false}} />
+          <Stack.Screen name='modal' options={{presentation: 'modal'}} />
+          <Stack.Screen name='artist-id' options={{title: 'Artist Albums', headerBackTitleVisible: false}} />
+        </Stack>
+      </PaperProvider>
     </ThemeProvider>
   )
 }

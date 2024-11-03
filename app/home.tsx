@@ -5,6 +5,7 @@ import {rem} from '@/constants/remUtils'
 import axios from 'axios'
 import {router, useLocalSearchParams} from 'expo-router'
 import {Star} from 'lucide-react-native'
+import {debounce} from 'lodash'
 
 interface Artist {
   id: string
@@ -98,7 +99,16 @@ const Home = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Searchbar placeholder='Search for an artist..' onChangeText={setQuery} onClearIconPress={handleClearSearch} value={query} />
+      <Searchbar
+        placeholder='Search for an artist..'
+        value={query}
+        onChangeText={setQuery}
+        onClearIconPress={handleClearSearch}
+        style={styles.searchBar}
+        placeholderTextColor={theme.colors.outline}
+        inputStyle={styles.input}
+        iconColor={theme.colors.outline}
+      />
       <Button onPress={handleSearch}>Submit</Button>
 
       <FlatList
@@ -142,6 +152,8 @@ export default Home
 const createStyles = (theme: MD3Theme) =>
   StyleSheet.create({
     container: {flex: 1, margin: rem(10)},
+    searchBar: {backgroundColor: theme.colors.surfaceVariant, paddingHorizontal: rem(10), height: rem(40)},
+    input: {alignSelf: 'center'},
     card: {backgroundColor: theme.colors.surface, padding: rem(10), paddingRight: rem(20), margin: rem(5), borderRadius: 15, flexDirection: 'row', justifyContent: 'space-between'},
     cardLeft: {flexDirection: 'row', gap: rem(15), alignItems: 'center'},
     cardLeftTextContainer: {gap: rem(5)},
